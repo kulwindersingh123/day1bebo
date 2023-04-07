@@ -1,0 +1,115 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Assignment22.Models
+{
+    public class Department
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string IsActive { get; set; }
+       // public ICollection<Employee> employees { get; set; }
+
+
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Assignment22.Models
+{
+    public class Employee
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string Email { get; set; }
+        public string Phone { get; set; }
+        public int DepartmentId { get; set; }
+        public string IsActive { get; set; }
+        public Department Department { get; set; }
+
+        //public ICollection<Skill> skills { get; set; }
+
+
+
+
+
+
+
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Assignment22.Models
+{
+    public class Skill
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public string IsActive { get; set; }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Assignment22.Models
+{
+    public class EmployeeSkill
+    {
+        public int Id { get; set; }
+        public int EmployeeId { get; set; }
+        public int SkillId { get; set; }
+        //public Skill Skill { get; set; } 
+        //public ICollection<Skill> Skills { get; set; }
+    }
+}
+
+    }
+
+
+
+
+
+<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+	<connectionStrings>
+		<add name="ConneectionForAssignment" connectionString="Data Source=SVM-INTERNS-VM1\SQLEXPRESS;Initial Catalog=EmployeeManagementSystem;Integrated 
+Security=True"
+		providerName="System.Data.SqlClient"></add>
+	</connectionStrings>
+</configuration>
+            
+}
+
+
+
+
+
+    }
+}

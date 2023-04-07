@@ -1,0 +1,1268 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<configuration>
+	<connectionStrings>
+		<add name="ConneectionForAssignment" connectionString="Data Source=SVM-INTERNS-VM1\SQLEXPRESS;Initial Catalog=EmployeeManagementSystem;Integrated 
+Security=True"
+		providerName="System.Data.SqlClient"></add>
+	</connectionStrings>
+</configuration>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+using Assignment22.Models;
+using Microsoft.IdentityModel.Tokens;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Assignment22
+{
+    public class DepartmentRepositery
+    {
+
+        public static void insertDepartment() 
+        {
+            CompanyContext departmentcontext = new CompanyContext();
+            Console.WriteLine("Enter Departement ID:");
+            int.TryParse(Console.ReadLine(),out int departmentId);
+            if (departmentcontext.Department.Find(departmentId) != null)
+            {
+                Console.WriteLine("Sorry,this department is already present in Table");
+
+            }
+            else 
+            {
+                Console.WriteLine("Enter name of Department:");
+                string departmentName = Console.ReadLine();
+
+                Console.WriteLine("Is department active?yes/no");
+                string isDepartmentActive = Console.ReadLine();
+
+                if (string.IsNullOrEmpty(departmentName) && string.IsNullOrEmpty(isDepartmentActive))
+                {
+                    Console.WriteLine("Please enter something!");
+                }
+                else 
+                {
+                    var insertDepartment = new Department()
+                    {
+                        Id = departmentId,
+                        Name = departmentName,
+                        IsActive = isDepartmentActive,
+                    };
+                    using (CompanyContext DepartmentContext = new CompanyContext())
+                    {
+                        DepartmentContext.Department.Add(insertDepartment);
+                        DepartmentContext.SaveChanges();
+                    }
+                    Console.WriteLine("Insertion sucessfull");
+
+                }
+                Console.WriteLine("Here are elements in Department After insertion:");
+                List<Department> departments = departmentcontext.Department.ToList();
+                foreach (Department department in departments)
+                {
+                    Console.WriteLine("Department_Id={0} | Department_Name:{1} | IsActive:{2}",
+                   department.Id, department.Name, department.IsActive);
+                }
+
+            }
+
+
+        }
+
+        public static void ReadDepartmentFormExistingTable() 
+        {
+            CompanyContext departmentcontext = new CompanyContext();
+            Console.WriteLine("Enter '1' for read one specific row and '2' all rows:");
+            int.TryParse(Console.ReadLine(), out int userChoiceForReadRows);
+            switch (userChoiceForReadRows)
+            {
+                case 1:
+                    Department department = new Department();
+                    Console.WriteLine("Enter the Department_Id of Department table which you want to read row:");
+                    int.TryParse(Console.ReadLine(), out int DepartmentIdForReadSpecificRow);
+                    department = departmentcontext.Department.Find(DepartmentIdForReadSpecificRow);
+                    if (DepartmentIdForReadSpecificRow == null)
+                    {
+                        Console.WriteLine("Row of given Department is not in table!");
+                    }
+                    else
+                    {
+                        Console.WriteLine(department.Id+" | "+department.Name + " | " + department.IsActive);
+
+                    }
+
+                    break;
+                case 2:
+                    List<Department> departments = departmentcontext.Department.ToList();
+                    foreach (Department departmentData in departments)
+                    {
+                        Console.WriteLine(departmentData.Id + " | " + departmentData.Name + " | " + departmentData.IsActive);
+                    }
+                    break;
+                default:
+                    Console.WriteLine("Enter valid input.");
+                    break;
+            }
+
+
+
+        }
+
+        public static void UpdateDepartmentTable() 
+        {
+            CompanyContext departentContext = new CompanyContext();
+
+            Console.WriteLine("Enter the Department ID  which you want to update:");
+            int.TryParse(Console.ReadLine(), out int departmentIDForUpdation);
+
+            Department department = departentContext.Department.Find(departmentIDForUpdation);
+            if (department == null)
+            {
+                Console.WriteLine("There is not any department present with this ID!");
+            }
+            else
+            {
+                Console.WriteLine("Enter 1 to update ID of department.\nEnter 2 to update Name of department.\nEnter 3 to update status of department.");
+                Console.WriteLine("Note,You can't update Department_ID beacuse that is key in table.");
+                int.TryParse(Console.ReadLine(),out int userChoiceForUpdateWhichColoumn);
+
+                 switch (userChoiceForUpdateWhichColoumn)
+                    {
+                        case 1:
+                            Console.WriteLine("Enter new Id of Department");
+
+                            int.TryParse(Console.ReadLine(), out int departmentId);
+                            if (departentContext.Department.Find(departmentId) != null)
+                            {
+                                department.Id = departmentId;
+                            }
+                            else
+                                Console.WriteLine("Forgien key can't be updated!");
+
+                            break;
+
+                        case 2:
+                            Console.WriteLine("Enter new name of Department:");
+                            string newNameGivenByUser = Console.ReadLine();
+                            if (string.IsNullOrEmpty(newNameGivenByUser))
+                            {
+                                Console.WriteLine("Please enter somthing!");
+
+                            }
+                            else
+                            {
+                                department.Name = newNameGivenByUser;
+                            }
+                            break;
+
+                        case 3:
+                            Console.WriteLine("Enter new status of Department:");
+                            string departmentIsActive = Console.ReadLine();
+                            if (string.IsNullOrEmpty(departmentIsActive))
+                            {
+                                Console.WriteLine("Please enter somthing!");
+
+                            }
+                            else
+                            {
+                                department.IsActive = departmentIsActive;
+                            }
+                            break;
+                       
+                    }
+
+                    departentContext.SaveChanges();
+
+                }
+                Console.WriteLine("After updation Department table is:");
+            List<Department> departments = departentContext.Department.ToList();
+            foreach (Department departmentData in departments)
+            {
+                Console.WriteLine(departmentData.Id + " | " + departmentData.Name + " | " + departmentData.IsActive);
+            }
+        }
+
+
+
+        public static void DeteteDeparmentRows()
+        {
+            CompanyContext departmentcontext = new CompanyContext();
+
+            Console.WriteLine("press 1 to delete a single row from Department,\n 2 to Delete all rows ");
+
+            int.TryParse(Console.ReadLine(), out int choice);
+            switch (choice)
+            {
+                case 1:
+                    Console.WriteLine("Enter the Department Id to delete:");
+                    int.TryParse(Console.ReadLine(),out int departmentIdToBeDeleted);
+                    Department departmentThatWillDeleted = departmentcontext.Department.Find(departmentIdToBeDeleted);
+                    if (departmentThatWillDeleted != null)
+                    {
+                        departmentcontext.Department.Remove(departmentThatWillDeleted);
+                        Console.WriteLine("Row deleted successfully!");
+                    }
+                    
+                    else
+                    {
+                        Console.WriteLine("There is no record found with id :" + departmentIdToBeDeleted);
+                    }
+                    departmentcontext.SaveChanges();
+                    break;
+                case 2:
+                    List<Department> departmentList = departmentcontext.Department.ToList<Department>();
+                    foreach (Department department in departmentList)
+                    {
+                        departmentcontext.Department.Remove(department);
+                    }
+                    break;
+                default:
+                    Console.WriteLine("Please enter valid input!");
+                    break;
+            }
+
+            Console.WriteLine("Department table after deletion:");
+            List<Department> departmentListafterDeletion = departmentcontext.Department.ToList<Department>();
+            foreach (Department departmentData in departmentListafterDeletion)
+            {
+                Console.WriteLine(departmentData.Id + " | " + departmentData.Name + " | " + departmentData.IsActive);
+            }
+
+        }
+        class CRUD_Operations_On_Departemnt_Table
+        {
+            public static void CallingCRUDOperationsMethods()
+            {
+                Console.WriteLine("Enter the CRUD operation which you want to perform:");
+                Console.WriteLine("Enter 1 for Insertion.\nEnter 2 for Updation.\nEnter 3 for Read and\n Enter 4 for Delete.");
+                int.TryParse(Console.ReadLine(), out int userOption);
+                switch (userOption)
+                {
+                    case 1:
+                        EmployeeRepositary.InsertNewEmployeeInComapnyTable();
+                        break;
+                    case 2:
+                        EmployeeRepositary.UpdateEmployeeINCompanyTable();
+                        break;
+                    case 3:
+                        EmployeeRepositary.ReadEmployeesThatExistInCompanyTable();
+                        break;
+                    case 4:
+                        EmployeeRepositary.DeteteEmployeeRows();
+                        break;
+                }
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+using Assignment22.Models;
+using Microsoft.Identity.Client;
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.Design;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Assignment22
+{
+    public class EmployeeRepositary
+    {
+
+        public static void InsertNewEmployeeInComapnyTable() 
+        {
+            CompanyContext employeeContext = new CompanyContext();
+            
+            Console.WriteLine("Enter Id of Employee which you want to insert:");
+            int.TryParse(Console.ReadLine(), out int employeeIDForInsertion);
+            if (employeeContext.Employee.Find(employeeIDForInsertion) != null)
+            {
+                Console.WriteLine("Sorry,Employee is already present in Table");
+
+            }
+            else
+            {
+                Console.WriteLine("Enter the Name of Employee:");
+                string employeeNameForInsertion = Console.ReadLine();
+
+                Console.WriteLine("Enter yes/no if Employee ia active or not:");
+                string employeeIsActive = Console.ReadLine();
+
+                Console.WriteLine("Enter the Email of Employee:");
+                string employeeEmailForInsertion = Console.ReadLine();
+
+                Console.WriteLine("Enter Employee phone:");
+                string employeePhoneForInsertion = Console.ReadLine();
+
+                Console.WriteLine("Enter Employee DepartmentId:");
+                while (!(int.TryParse(Console.ReadLine(), out int employeeDepartmentIdForInsertion)))
+                {
+                    if (employeeContext.Department.Find(employeeDepartmentIdForInsertion) == null)
+                    {
+                        Console.WriteLine("Sorry,This Deptarment ID not present in Department table");
+                    }
+                }
+
+                Console.WriteLine("Is Employee active?yes/no");
+                string isEmployeeActive= Console.ReadLine();
+                if (string.IsNullOrEmpty(employeeNameForInsertion) && string.IsNullOrEmpty(employeeIsActive) && string.IsNullOrEmpty(employeeEmailForInsertion) && string.IsNullOrEmpty(employeePhoneForInsertion))
+                {
+                    Console.WriteLine("Sorry,string is empty!");
+                }
+                else
+                {
+                    var insertEmployee = new Employee()
+                    {
+                        Id = employeeIDForInsertion,
+                        Name = employeeNameForInsertion,
+                        IsActive = employeeIsActive,
+                        Email = employeeEmailForInsertion,
+                        Phone = employeePhoneForInsertion,
+                        DepartmentId = employeeDepartmentIdForInsertion,
+                    };
+                    using (CompanyContext EmployeeContext = new CompanyContext())
+                    {
+                        EmployeeContext.Employee.Add(insertEmployee);
+                        EmployeeContext.SaveChanges();
+                    }
+                }
+                Console.WriteLine("Insertion successfull");
+            }
+            Console.WriteLine("Here are elements in Employee After insertion:");
+            List<Employee> employeeList = employeeContext.Employee.ToList();
+            foreach (Employee employeeData in employeeList)
+            {
+                Console.WriteLine("Employee_Id={0} | Employee_Name={1} | Employee_Email={2}| Employee_Phone ={ 3} | Employee_DepartemntID ={ 4} | IsActive ={ 5}",
+            employeeData.Id, employeeData.Name, employeeData.Email, employeeData.Phone, employeeData.DepartmentId, employeeData.IsActive);
+            }
+
+            
+        }
+        public static void ReadEmployeesThatExistInCompanyTable() 
+        {
+            CompanyContext employeeContext= new CompanyContext();
+            Console.WriteLine("Enter '1' for read one specific row and '2' all rows:");
+            int.TryParse(Console.ReadLine(),out int userChoiceForReadRows);
+            switch(userChoiceForReadRows)
+            {
+                case 1:
+                    Employee employee = new Employee();
+                    Console.WriteLine("Enter the EmployeeID of Employee which you want to read row:");
+                    int.TryParse(Console.ReadLine(),out int emploeeIDForReadSpecificRow);
+                    employee = employeeContext.Employee.Find(emploeeIDForReadSpecificRow);
+                    if (emploeeIDForReadSpecificRow == null)
+                    {
+                        Console.WriteLine("Row of given Emplyee is not in table!");
+                    }
+                    else 
+                    {
+                        Console.WriteLine(employee.Id+" | "+employee.Name + " | " + employee.Email + " | " + employee.Phone + " | " + employee.DepartmentId + " | " + employee.IsActive);
+                    }
+
+                    break;
+                case 2:
+                    List<Employee> employeeList = employeeContext.Employee.ToList();
+                    foreach (Employee employeeData in employeeList)
+                    {
+                        Console.WriteLine(employeeData.Id + " | " + employeeData.Name + " | " + employeeData.Email + " | " + employeeData.Phone + " | " + employeeData.DepartmentId + " | " + employeeData.IsActive);
+                    }
+                    break;
+                default:
+                    Console.WriteLine("Enter valid input.");
+                    break;
+            }
+
+        }
+        public static void UpdateEmployeeINCompanyTable() 
+        {
+            CompanyContext employeeContext = new CompanyContext();
+
+            Console.WriteLine("Enter the EmployeeID of employee of which you want to update:");
+            int.TryParse(Console.ReadLine(),out int employeeIDForUpdation);
+
+            Employee employee = employeeContext.Employee.Find(employeeIDForUpdation);
+            if (employee == null)
+            {
+                Console.WriteLine("There is not any employee present with this ID!");
+            }
+            else
+            {
+                Console.WriteLine("Enter the coloumn name of employee with given ID which you want to update:");
+                Console.WriteLine("There are four coloumn which you can update-\n1.Employee_Name\n2.Employee_Email\n3.Employee_Phone\n4.IsActive");
+                Console.WriteLine("Note,You can't update Employee_ID and Employee_DepartemntID beacuse these are keys in table.");
+                string userChoiceForUpdateWhichColoumn = Console.ReadLine();
+                if (string.IsNullOrEmpty(userChoiceForUpdateWhichColoumn))
+                {
+                    Console.WriteLine("Please enter somthing!");
+                }
+                else
+                {
+                    switch (userChoiceForUpdateWhichColoumn)
+                    {
+                        case "Employee_Name":
+                            Console.WriteLine("Enter new name of Employee:");
+                            string newNameGivenByUser = Console.ReadLine();
+                            if (string.IsNullOrEmpty(newNameGivenByUser))
+                            {
+                                Console.WriteLine("Please enter somthing!");
+
+                            }
+                            else
+                            {
+                                employee.Name = newNameGivenByUser;
+                            }
+                            break;
+
+                        case "Employee_Email":
+                            Console.WriteLine("Enter new Email of Employee:");
+                            string newEmailGivenByUser = Console.ReadLine();
+                            if (string.IsNullOrEmpty(newEmailGivenByUser))
+                            {
+                                Console.WriteLine("Please enter somthing!");
+
+                            }
+                            else
+                            {
+                                employee.Email = newEmailGivenByUser;
+                            }
+                            break;
+
+                        case "Employee_Phone":
+                            Console.WriteLine("Enter new phone of Employee:");
+                            string newPhoneGivenByUser = Console.ReadLine();
+                            if (string.IsNullOrEmpty(newPhoneGivenByUser))
+                            {
+                                Console.WriteLine("Please enter somthing!");
+
+                            }
+                            else
+                            {
+                                employee.Phone = newPhoneGivenByUser;
+                            }
+                            break;
+
+                        case "Deparment_Id":
+                            Console.WriteLine("Enter new  DepartmentId of employee");
+
+                            int.TryParse(Console.ReadLine(), out int departmentId);
+                            if (employeeContext.Department.Find(departmentId) != null)
+                            {
+                                employee.DepartmentId = departmentId;
+                            }
+                            else
+                                Console.WriteLine("Forgien key can't be updated!");
+
+                            break;
+
+                        case "IsActive":
+                            Console.WriteLine("Enter new status of Employee:");
+                            string employeeIsActive = Console.ReadLine();
+                            if (string.IsNullOrEmpty(employeeIsActive))
+                            {
+                                Console.WriteLine("Please enter somthing!");
+
+                            }
+                            else
+                            {
+                                employee.IsActive = employeeIsActive;
+                            }
+                            break;
+                        case "Employee_Id":
+                            Console.WriteLine("Enter new  DepartmentId of employee");
+
+                            int.TryParse(Console.ReadLine(), out int emlpoyeeId);
+                            if (employeeContext.Department.Find(emlpoyeeId) != null)
+                            {
+                                employee.DepartmentId = emlpoyeeId;
+                            }
+                            else
+                                Console.WriteLine("Primary key can't be updated!");
+                            break;
+
+
+
+
+                    }
+
+                    employeeContext.SaveChanges();
+
+                }
+                Console.WriteLine("After updation employee table is:");
+                List<Employee> employeeList = employeeContext.Employee.ToList<Employee>();
+
+                foreach (Employee employeeData in employeeList)
+                {
+                    Console.WriteLine(employeeData.Id + " | " + employeeData.Name + " | " + employeeData.Email + " | " + employeeData.Phone + " | " + employeeData.DepartmentId + " | " + employeeData.IsActive);
+                }
+            }
+
+        }
+
+        public static void DeteteEmployeeRows()
+        {
+                CompanyContext employeeContext = new CompanyContext();
+            
+                Console.WriteLine("press 1 to delete a single record from Employees,\n 2 to Delete all records ");
+               
+                int.TryParse(Console.ReadLine(), out int choice);
+                switch (choice)
+                {
+                    case 1:
+                        Console.WriteLine("Enter the Employee Id to delete:");
+                        int.TryParse(Console.ReadLine(),out int employeeIdToBeDeleted);
+                        Employee emplyeeThatWillDeleted = employeeContext.Employee.Find(employeeIdToBeDeleted);
+                        if (emplyeeThatWillDeleted != null)
+                        {
+                        employeeContext.Employee.Remove(emplyeeThatWillDeleted);
+                        Console.WriteLine("Row deleted successfully!");
+                        }
+                        else
+                        {
+                        Console.WriteLine("There is no record found with id :"+ employeeIdToBeDeleted);
+                        }
+                        employeeContext.SaveChanges();
+                        break;
+                    case 2:
+                        List<Employee> employeeList =
+                       employeeContext.Employee.ToList<Employee>();
+                        foreach (Employee employee in employeeList)
+                        {
+                            employeeContext.Employee.Remove(employee);
+                        }
+                        break;
+                    default:
+                        Console.WriteLine("Please enter valid input!");
+                        break;
+                }
+
+            Console.WriteLine("Employee table after deletion:");
+            List<Employee> employeeListafterDeletion= employeeContext.Employee.ToList<Employee>();
+
+            foreach (Employee employeeData in employeeListafterDeletion)
+            {
+                Console.WriteLine(employeeData.Id + " | " + employeeData.Name + " | " + employeeData.Email + " | " + employeeData.Phone + " | " + employeeData.DepartmentId + " | " + employeeData.IsActive);
+            }
+
+        }
+        class CRUD_Operations_On_Employee_Table
+        {
+            public static void CallingCRUDOperationsMethods()
+            {
+                Console.WriteLine("Enter the CRUD operation which you want to perform:");
+                Console.WriteLine("Enter 1 for Insertion.\nEnter 2 for Updation.\nEnter 3 for Read and\n Enter 4 for Delete.");
+                int.TryParse(Console.ReadLine(), out int userOption);
+                switch (userOption)
+                {
+                    case 1:
+                        DepartmentRepositery.insertDepartment();
+                        break;
+                    case 2:
+                        DepartmentRepositery.UpdateDepartmentTable();
+                        break;
+                    case 3:
+                        DepartmentRepositery.ReadDepartmentFormExistingTable();
+                        break;
+                    case 4:
+                        DepartmentRepositery.DeteteDeparmentRows();
+                        break;
+                }
+            }
+
+        }
+
+
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+using Assignment22.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Assignment22
+{
+    public class EmployeeSkillRepositery
+    {
+        public static void InsertEmployeeSkill()
+        {
+            CompanyContext employeeSkillcontext = new CompanyContext();
+            Console.WriteLine("Enter employeeSkill ID:");
+            int.TryParse(Console.ReadLine(), out int idOfSkillGivenByUser);
+            if (employeeSkillcontext.EmployeeSkill.Find(idOfSkillGivenByUser) != null)
+            {
+                Console.WriteLine("Sorry,this employee skill is already present in Table");
+
+            }
+            else
+            {
+                Console.WriteLine("Enter Employee Id:");
+                int.TryParse(Console.ReadLine(), out int idOfEmplyeeGivenByUser);
+
+                Console.WriteLine("Enter skill Id:");
+                int.TryParse(Console.ReadLine(), out int givenSkillId);
+
+                var insertEmployeeSkill = new EmployeeSkill()
+                {
+                    Id = idOfSkillGivenByUser,
+                    EmployeeId = idOfEmplyeeGivenByUser,
+                    SkillId = givenSkillId,
+                };
+                using (CompanyContext employeeIdContext = new CompanyContext())
+                {
+                    employeeSkillcontext.EmployeeSkill.Add(insertEmployeeSkill);
+                    employeeSkillcontext.SaveChanges();
+                }
+                Console.WriteLine("Insertion sucessfull");
+
+
+                Console.WriteLine("Here are elements in EmployeeSkill After insertion:");
+                List<EmployeeSkill> employeeSkills = employeeSkillcontext.EmployeeSkill.ToList();
+                foreach (EmployeeSkill employeeSkillData in employeeSkills)
+                {
+                    Console.WriteLine("Id={0} | EmployeeId:{1} | SkillId:{2}",
+                   employeeSkillData.Id, employeeSkillData.EmployeeId, employeeSkillData.SkillId);
+                }
+
+            }
+
+
+        }
+
+        public static void ReadEmployeeSkillFormExistingTable()
+        {
+            CompanyContext employeeSkillcontext = new CompanyContext();
+            Console.WriteLine("Enter '1' for read one specific row and '2' all rows:");
+            int.TryParse(Console.ReadLine(), out int userChoiceForReadRows);
+            switch (userChoiceForReadRows)
+            {
+                case 1:
+                    EmployeeSkill employeeSkill = new EmployeeSkill();
+                    Console.WriteLine("Enter the Department_Id of Department table which you want to read row:");
+                    int.TryParse(Console.ReadLine(), out int DepartmentIdForReadSpecificRow);
+                    employeeSkill = employeeSkillcontext.EmployeeSkill.Find(DepartmentIdForReadSpecificRow);
+                    if (DepartmentIdForReadSpecificRow == null)
+                    {
+                        Console.WriteLine("Row of given Department is not in table!");
+                    }
+                    else
+                    {
+                        Console.WriteLine(employeeSkill.Id + " | " + employeeSkill.EmployeeId + " | " + employeeSkill.SkillId);
+
+                    }
+
+                    break;
+                case 2:
+                    List<EmployeeSkill> employeeSkills = employeeSkillcontext.EmployeeSkill.ToList();
+                    foreach (EmployeeSkill employeeSkillsData in employeeSkills)
+                    {
+                        Console.WriteLine(employeeSkillsData.Id + " | " + employeeSkillsData.EmployeeId + " | " + employeeSkillsData.SkillId);
+                    }
+                    break;
+                default:
+                    Console.WriteLine("Enter valid input.");
+                    break;
+            }
+
+
+
+        }
+
+        public static void UpdateEmployeeSkillTable()
+        {
+            CompanyContext employeeSkillcontext = new CompanyContext();
+
+            Console.WriteLine("Enter the Employee Skill ID  which you want to update:");
+            int.TryParse(Console.ReadLine(), out int emplyeeSkillIDForUpdation);
+
+            EmployeeSkill employeeSkill = employeeSkillcontext.EmployeeSkill.Find(emplyeeSkillIDForUpdation);
+            if (employeeSkill == null)
+            {
+                Console.WriteLine("There is not any employeeSkill present with this ID!");
+            }
+            else
+            {
+                Console.WriteLine("Enter 1 to update ID of EmployeeSkill.\nEnter 2 to update EmplyeeId of employeeSkill.\nEnter 3 to update skillId of EmployeeSkill.");
+                Console.WriteLine("Note,You can't update EmployeeSkill_ID beacuse that is key in table.");
+                int.TryParse(Console.ReadLine(), out int userChoiceForUpdateWhichColoumn);
+
+                switch (userChoiceForUpdateWhichColoumn)
+                {
+                    case 1:
+                        Console.WriteLine("Enter new Id of EmployeeSkill:");
+
+                        int.TryParse(Console.ReadLine(), out int employeeSkillIdToBeInserted);
+                        if (employeeSkillcontext.Department.Find(employeeSkillIdToBeInserted) != null)
+                        {
+                            employeeSkill.Id = employeeSkillIdToBeInserted;
+                        }
+                        else
+                        {
+                            Console.WriteLine("key can't be updated!");
+                        }
+
+                        break;
+
+                    case 2:
+                        Console.WriteLine("Enter Id of Employee:");
+                        int.TryParse(Console.ReadLine(), out int employeeIdToBeInserted);
+                        if (employeeSkillcontext.Department.Find(employeeIdToBeInserted) != null)
+                        {
+                            employeeSkill.EmployeeId = employeeIdToBeInserted;
+                        }
+                        else
+                        {
+                            Console.WriteLine("Forgien key can't be updated!");
+                        }
+
+                        break;
+
+                    case 3:
+                        Console.WriteLine("Enter new skill Id:");
+                        int.TryParse(Console.ReadLine(), out int skillIdToBeInserted);
+
+                        employeeSkill.SkillId = skillIdToBeInserted;
+
+                        break;
+
+                }
+
+                employeeSkillcontext.SaveChanges();
+
+            }
+            Console.WriteLine("After updation EmployeeSkill table is:");
+            List<EmployeeSkill> employeeSkills = employeeSkillcontext.EmployeeSkill.ToList();
+            foreach (EmployeeSkill employeeSkillData in employeeSkills)
+            {
+                Console.WriteLine(employeeSkillData.Id + " | " + employeeSkillData.EmployeeId + " | " + employeeSkillData.SkillId);
+            }
+        }
+
+
+
+
+
+
+
+
+
+
+
+        public static void DeteteEmployeeSkillRows()
+        {
+            CompanyContext employeeSkillcontext = new CompanyContext();
+
+            Console.WriteLine("press 1 to delete a single row from EmployeeSkill,\n 2 to Delete all rows ");
+
+            int.TryParse(Console.ReadLine(), out int choice);
+            switch (choice)
+            {
+                case 1:
+                    Console.WriteLine("Enter the employee skill Id to delete:");
+                    int.TryParse(Console.ReadLine(), out int employeeSkillIdToBeDeleted);
+                    EmployeeSkill employeeSkillThatWillDeleted = employeeSkillcontext.EmployeeSkill.Find(employeeSkillIdToBeDeleted);
+                    if (employeeSkillThatWillDeleted != null)
+                    {
+                        employeeSkillcontext.EmployeeSkill.Remove(employeeSkillThatWillDeleted);
+                        Console.WriteLine("Row deleted successfully!");
+                    }
+                    else
+                    {
+                        Console.WriteLine("There is no record found with id :" + employeeSkillIdToBeDeleted);
+                    }
+                    employeeSkillcontext.SaveChanges();
+                    break;
+                case 2:
+                    List<EmployeeSkill> employeeSkillList = employeeSkillcontext.EmployeeSkill.ToList<EmployeeSkill>();
+                    foreach (EmployeeSkill employeeSkill in employeeSkillList)
+                    {
+                        employeeSkillcontext.EmployeeSkill.Remove(employeeSkill);
+                    }
+                    break;
+                default:
+                    Console.WriteLine("Please enter valid input!");
+                    break;
+            }
+
+            Console.WriteLine("EmployeeSkill table after deletion:");
+            List<EmployeeSkill> employeeSkillListafterDeletion = employeeSkillcontext.EmployeeSkill.ToList<EmployeeSkill>();
+            foreach (EmployeeSkill employeeSkillData in employeeSkillListafterDeletion)
+            {
+                Console.WriteLine(employeeSkillData.Id + " | " + employeeSkillData.EmployeeId + " | " + employeeSkillData.SkillId);
+            }
+
+        }
+        class CRUD_Operations_On_EmployeeSkill_Table 
+        {
+            public static void CallingCRUDOperationsMethods()
+            {
+                Console.WriteLine("Enter the CRUD operation which you want to perform:");
+                Console.WriteLine("Enter 1 for Insertion.\nEnter 2 for Updation.\nEnter 3 for Read and\n Enter 4 for Delete.");
+                int.TryParse(Console.ReadLine(), out int userOption);
+                switch (userOption)
+                {
+                    case 1:
+                        EmployeeSkillRepositery.InsertEmployeeSkill();
+                        break;
+                    case 2:
+                        EmployeeSkillRepositery.UpdateEmployeeSkillTable();
+                        break;
+                    case 3:
+                        EmployeeSkillRepositery.ReadEmployeeSkillFormExistingTable();
+                        break;
+                    case 4:
+                        EmployeeSkillRepositery.DeteteEmployeeSkillRows();
+                        break;
+                }
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+using Assignment22.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Assignment22
+{
+    public class SkillRepositery
+    {
+        public static void insertSkill()
+        {
+            CompanyContext SkillContext = new CompanyContext();
+            Console.WriteLine("Enter Skill ID:");
+            int.TryParse(Console.ReadLine(), out int IdForskill);
+            if (SkillContext.Skill.Find(IdForskill) != null)
+            {
+                Console.WriteLine("Sorry,this skill is already present in Table");
+
+            }
+            else
+            {
+                Console.WriteLine("Enter name of skill:");
+                string skillName = Console.ReadLine();
+
+                Console.WriteLine("Is skill active?yes/no");
+                string isSkillActive = Console.ReadLine();
+
+                if (string.IsNullOrEmpty(skillName) && string.IsNullOrEmpty(isSkillActive))
+                {
+                    Console.WriteLine("Please enter something!");
+                }
+                else
+                {
+                    Skill insertSkill = new Skill()
+                    {
+                        Id = IdForskill,
+                        Name = skillName,
+                        IsActive = isSkillActive,
+                    };
+                    using (CompanyContext Skillcontext = new CompanyContext())
+                    {
+                        SkillContext.Skill.Add(insertSkill);
+                        SkillContext.SaveChanges();
+                    }
+                    Console.WriteLine("Insertion sucessfull");
+
+                }
+                Console.WriteLine("Here are elements in Skill After insertion:");
+                List<Skill> skills = SkillContext.Skill.ToList();
+                foreach (Skill skill in skills)
+                {
+                    Console.WriteLine("Skill_Id={0} | Skill_Name:{1} | IsActive:{2}",
+                   skill.Id, skill.Name, skill.IsActive);
+                }
+
+            }
+
+
+        }
+
+        public static void ReadSkillFromExistingTable()
+        {
+            CompanyContext skillcontext = new CompanyContext();
+            Console.WriteLine("Enter '1' for read one specific row and '2' all rows:");
+            int.TryParse(Console.ReadLine(), out int userChoiceForRead);
+            switch (userChoiceForRead)
+            {
+                case 1:
+                    Skill skill = new Skill();
+                    Console.WriteLine("Enter the Skill_Id which you want to read row:");
+                    int.TryParse(Console.ReadLine(), out int skillIdForReadSpecificRow);
+                    skill = skillcontext.Skill.Find(skillIdForReadSpecificRow);
+                    if (skillIdForReadSpecificRow == null)
+                    {
+                        Console.WriteLine("Row of given Skill is not in table!");
+                    }
+                    else
+                    {
+                        Console.WriteLine(skill.Id + " | " + skill.Name + " | " + skill.IsActive);
+
+                    }
+
+                    break;
+                case 2:
+                    List<Skill> skills = skillcontext.Skill.ToList();
+                    foreach (Skill skillData in skills)
+                    {
+                        Console.WriteLine(skillData.Id + " | " + skillData.Name + " | " + skillData.IsActive);
+                    }
+                    break;
+                default:
+                    Console.WriteLine("Enter valid input.");
+                    break;
+            }
+
+
+
+        }
+
+        public static void UpdateSkillTable()
+        {
+            CompanyContext skillcontext = new CompanyContext();
+
+            Console.WriteLine("Enter the Skill ID which you want to update:");
+            int.TryParse(Console.ReadLine(), out int skillIDForUpdation);
+
+            Skill skill = skillcontext.Skill.Find(skillIDForUpdation);
+            if (skill == null)
+            {
+                Console.WriteLine("There is not any skill present with this ID!");
+            }
+            else
+            {
+                Console.WriteLine("Enter 1 to update ID of skill.\nEnter 2 to update Name of skill.\nEnter 3 to update status of skill.");
+                Console.WriteLine("Note,You can't update skill_ID beacuse that is key in table.");
+                int.TryParse(Console.ReadLine(), out int userChoiceForUpdateWhichColoumn);
+
+                switch (userChoiceForUpdateWhichColoumn)
+                {
+                    case 1:
+                        Console.WriteLine("Enter new Id of skill");
+
+                        int.TryParse(Console.ReadLine(), out int skillId);
+                        if (skillcontext.Skill.Find(skillId) != null)
+                        {
+                            skill.Id = skillId;
+                        }
+                        else
+                            Console.WriteLine("Forgien key can't be updated!");
+
+                        break;
+
+                    case 2:
+                        Console.WriteLine("Enter new name of skill:");
+                        string newNameGivenByUser = Console.ReadLine();
+                        if (string.IsNullOrEmpty(newNameGivenByUser))
+                        {
+                            Console.WriteLine("Please enter somthing!");
+
+                        }
+                        else
+                        {
+                            skill.Name = newNameGivenByUser;
+                        }
+                        break;
+
+                    case 3:
+                        Console.WriteLine("Enter new status of skill:");
+                        string skillIsActive = Console.ReadLine();
+                        if (string.IsNullOrEmpty(skillIsActive))
+                        {
+                            Console.WriteLine("Please enter somthing!");
+
+                        }
+                        else
+                        {
+                            skill.IsActive = skillIsActive;
+                        }
+                        break;
+
+                }
+
+                skillcontext.SaveChanges();
+
+            }
+            Console.WriteLine("After updation skill table is:");
+            List<Skill> skills = skillcontext.Skill.ToList();
+            foreach (Skill skillsData in skills)
+            {
+                Console.WriteLine(skillsData.Id + " | " + skillsData.Name + " | " + skillsData.IsActive);
+            }
+        }
+
+
+
+        public static void DeteteskillRows()
+        {
+            CompanyContext skillcontext = new CompanyContext();
+
+            Console.WriteLine("press 1 to delete a single row from Skill,\n 2 to Delete all rows ");
+
+            int.TryParse(Console.ReadLine(), out int choice);
+            switch (choice)
+            {
+                case 1:
+                    Console.WriteLine("Enter the skillsData Id to delete:");
+                    int.TryParse(Console.ReadLine(), out int skillIdToBeDeleted);
+                    Skill skillThatWillDeleted = skillcontext.Skill.Find(skillIdToBeDeleted);
+                    if (skillThatWillDeleted != null)
+                    {
+                        skillcontext.Skill.Remove(skillThatWillDeleted);
+                        Console.WriteLine("Row deleted successfully!");
+                    }
+                    else
+                    {
+                        Console.WriteLine("There is no record found with id :" + skillIdToBeDeleted);
+                    }
+                    skillcontext.SaveChanges();
+                    break;
+                case 2:
+                    List<Skill> skillList = skillcontext.Skill.ToList<Skill>();
+                    foreach (Skill skill in skillList)
+                    {
+                        skillcontext.Skill.Remove(skill);
+                    }
+                    break;
+                default:
+                    Console.WriteLine("Please enter valid input!");
+                    break;
+            }
+
+            Console.WriteLine("Skill table after deletion:");
+            List<Skill>skillListafterDeletion = skillcontext.Skill.ToList<Skill>();
+            foreach (Skill skillData in skillListafterDeletion)
+            {
+                Console.WriteLine(skillData.Id + " | " + skillData.Name + " | " + skillData.IsActive);
+            }
+
+        }
+        class CRUD_Operations_On_Skill_Table
+        {
+            public static void CallingCRUDOperationsMethods()
+            {
+                Console.WriteLine("Enter the CRUD operation which you want to perform:");
+                Console.WriteLine("Enter 1 for Insertion.\nEnter 2 for Updation.\nEnter 3 for Read and\n Enter 4 for Delete.");
+                int.TryParse(Console.ReadLine(), out int userOption);
+                switch (userOption)
+                {
+                    case 1:
+                        SkillRepositery.insertSkill();
+                        break;
+                    case 2:
+                        SkillRepositery.UpdateSkillTable();
+                        break;
+                    case 3:
+                        SkillRepositery.ReadSkillFromExistingTable();
+                        break;
+                    case 4:
+                        SkillRepositery.DeteteskillRows();
+                        break;
+                }
+            }
+
+        }
+
+    }
+}
+
+
+
+
+
+
+
+
+
+using Assignment22.Models;
+using Assignment22;
+
+class Program 
+{
+    public static object CRUD_Operations_On_Departemnt_Table { get; private set; }
+
+    public static void Main(string[] args) 
+    {
+        CompanyContext modelContext = new CompanyContext();
+        Console.WriteLine("Enter the Table in which you want to perform CRUD operations:");
+        Console.WriteLine("Enter 1 for Department.\nEnter 2 for Employee.\nEnter 3 for Skills and\n Enter 4 for EmployeeSkill.");
+        int.TryParse(Console.ReadLine(), out int userOption);
+        switch (userOption)
+        {
+            case 1:
+                CRUD_Operations_On_Departemnt_Table.CRUD_Operations_On_Departemnt_Table();
+                break;
+
+
+
+        }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+create database EmployeeManagementSystem;
+
+create table Department(Id int primary key ,Name varchar(30),IsActive varchar(4));
+insert into Department values(1,'B.Tech','yes')
+,(2,'M.Tech','yes')
+,(3,'BCA','yes')
+,(4,'MCA','no')
+,(5,'B.Com','yes');               
+insert into Department values(10,'mca','yes');
+drop table Department
+select*from Department;
+
+create table Employee(Id int primary key ,Name varchar(30),Email varchar(20),Phone varchar(15),DepartmentId int foreign key references Department(Id) ,IsActive varchar(4));
+insert into Employee values(11,'Kulwinder singh','hsb@gmail.com','42343212',1,'yes'),
+(12,'Davinder singh','heb@gmail.com','42343223',2,'yes'),
+(13,'Gurjnder singh','qsb@gmail.com','423432231',3,'no'),
+(14,'Harpreet singh','wsb@gmail.com','4234322567',4,'yes'),
+(15,'Rishabh singh','asb@gmail.com','423432211',5,'yes');
+insert into Employee values('rohan singh','ase@gmail.com','423432211',6,'yes');
+drop table Employee;
+select *from Employee
+create table EmployeeSkill(Id int primary key ,EmployeeId int foreign key references Employee(Id),Skill_ID int);
+insert into EmployeeSkill values(1,11,211),
+(2,12,212),
+(3,13,213),
+(4,14,214),
+(5,15,215);
+drop table EmployeeSkill
+
+create table Skill(Id int primary key ,Name varchar(30),IsActive varchar(4));
+insert into Skill values(21,'.NET','yes'),
+(22,'JAVA','yes'),
+(23,'C#','yes'),
+(24,'Ruby','yes'),
+(25,'C++','yes');
+insert into Skill values(20,'.NET','yes');
+
+
+create table Employee(Id int primary key ,Name varchar(30),Email varchar(20),Phone 
+varchar(15), DepartmentId int foreign key references Department(Id) ,IsActive varchar(4));
+select*from Department
+drop table Employee
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+        }
+
+    }
+
+    
+
+       
+
+
+    
+
+}
+
